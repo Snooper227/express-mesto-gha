@@ -55,7 +55,7 @@ function getCurrentUserInfo(req, res, next) {
       res.send(user)
     }
   })
-  .catch((err) => {ё
+  .catch((err) => {
     next(err);
   })
 }
@@ -77,7 +77,7 @@ function updateUser(req, res, next) {
       res.send(user)
     }
   })
-  .catch((err) => {ё
+  .catch((err) => {
     next(err);
   })
 }
@@ -98,7 +98,7 @@ function updateAvatar(req, res, next) {
       res.send(user)
     }
   })
-  .catch((err) => {ё
+  .catch((err) => {
     next(err);
   })
 }

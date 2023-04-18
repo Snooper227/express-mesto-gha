@@ -1,0 +1,40 @@
+{
+  "name": "express-mesto-gha",
+  "version": "1.0.0",
+  "description": "Проект Mesto бэкенд",
+  "main": "app.js",
+  "scripts": {
+    "lint": "npx eslint .",
+    "dev": "nodemon app.js",
+    "start": "node app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Snooper227/express-mesto-gha.git"
+  },
+  "author": "Glebov Stanislav",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Snooper227/express-mesto-gha/issues"
+  },
+  "homepage": "https://github.com/Snooper227/express-mesto-gha#readme",
+  "keywords": [
+    "yandex-practicum",
+    "mesto",
+    "node-js",
+    "mongodb",
+    "mongoose"
+  ],
+  "dependencies": {
+    "express": "^4.18.2",
+    "mongoose": "^7.0.4",
+    "validate.js": "^0.13.1",
+    "validator": "^13.9.0"
+  },
+  "devDependencies": {
+    "eslint": "^8.38.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-plugin-import": "^2.27.5",
+    "nodemon": "^2.0.22"
+  }
+}

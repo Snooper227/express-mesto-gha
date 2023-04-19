@@ -31,14 +31,21 @@ function getUser(req, res) {
       } else if (err.statusCode === 404) {
         res.status(404).send({ message: err.message });
       } else {
-        res.status(500).send({ messsage: 'Произошла ошибка'});
+        res.status(500).send({ message: 'Произошла ошибка'});
       }
     });
 }
 
 function getUsers(req, res) {
   User.find({})
-    .then((users) => res.status(200).send(users))
+  .orFail(() => {
+    const error = new Error('Пользователь с таким id не найден');
+      error.statusCode = 404;
+      throw error;
+  })
+  .then((user) => {
+    res.status(200).send(user)
+  })
     .catch((err) => {
       if (err.name === 'ValidationError') {
         res.status(400).send({message: 'Запрашиваемые пользователи не найдены'});
@@ -60,7 +67,7 @@ function getCurrentUserInfo(req, res) {
       throw error;
   })
   .then((user) => {
-    res.send(user)
+    res.status(200).send(user)
   })
   .catch((err) => {
     if (err.name === 'ValidationError') {

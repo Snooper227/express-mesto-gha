@@ -3,8 +3,8 @@ const NotFoundError = require('../errors/NotFoundError');
 
 function createCard(req, res) {
   const { name, link } = req.body;
-  const { userId } = req.user;
-  Card.create({ name, link, owner: userId })
+  const owner = req.user._id;
+  Card.create({ name, link, owner})
     .then((card) => res.status(201).send(card))
     .catch((err) => {
       if (err.name === 'ValidationError') {
@@ -20,13 +20,11 @@ function createCard(req, res) {
 }
 
 function likeCard(req, res) {
-  const { cardId } = req.params;
-  const { userId } = req.user;
 
   Card.findByIdAndUpdate(
-    cardId,
+    req.params.cardId,
     {
-      $addToSet: { likes: userId },
+      $addToSet: { likes: req.user._id },
     },
     {
       new: true,
@@ -34,7 +32,7 @@ function likeCard(req, res) {
   )
     .populate(['likes'])
     .then((card) => {
-      if(card) return res.send(card)
+      if(card) return res.status(200).send(card)
 
       throw new NotFoundError('Объект не найден');
     })
@@ -52,20 +50,18 @@ function likeCard(req, res) {
 }
 
 function dislikedCard(req, res) {
-  const { cardId } = req.params;
-  const { userId } = req.user;
 
   Card.findByIdAndUpdate(
-    cardId,
+    req.params.cardId,
     {
-      $pull: { likes: userId },
+      $pull: { likes: req.user._id },
     },
     {
       new: true,
     },
   )
     .then((card) => {
-      if (card) return res.send(card)
+      if (card) return res.status(200).send(card)
 
     throw new NotFoundError('Объект не найден');
     })
@@ -88,17 +84,24 @@ function getCards(req, res, next) {
     .catch(next);
 }
 
-const deleteCard = (req, res, next) => {
-  Card.findById(req.params.cardId)
-    .orFail(() => console.log('Карточка не найдена.'))
+const deleteCard = (req, res) => {
+  const { cardId } = req.params;
+  Card.findByIdAndRemove(cardId)
     .then((card) => {
-      if (JSON.stringify(card.owner) !== JSON.stringify(req.user.payload)) {
-        return next(console.log('Нельзя удалять чужие карточки.'));
+      if (card) {
+        res.status(200).send(card);
+        throw new NotFoundError('Объект не найден');
       }
-      return card.remove()
-        .then(() => res.send({ message: 'Карточка удалена.' }));
     })
-    .catch(next);
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        res.status(400).send({ message: 'Передан невалидный id'});
+      } else if (err.statusCode === 404) {
+        res.status(404).send({ message: err.message });
+      } else {
+        res.status(500).send({ message: 'Произошла ошибка'});
+      }
+    });
 };
 
 module.exports = {

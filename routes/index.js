@@ -7,7 +7,7 @@ const cardRoutes = require('./cards');
 router.use('/users', userRoutes);
 router.use('/cards', cardRoutes);
 router.use((req, res) => {
-  res.status(404).send({ error: 'Что-то пошло не так'});
+  res.status(404).send({ message: 'Что-то пошло не так'});
 });
 router.use('*', () => {
   throw new NotFoundError('Запрашиваемый ресурс не найден');

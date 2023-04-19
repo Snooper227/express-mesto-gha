@@ -18,11 +18,6 @@ function createUser(req, res) {
 
 function getUser(req, res) {
   User.findById(req.params.userId)
-    .orFail(() => {
-      const error = new Error('Пользователь с таким id не найден');
-      error.statusCode = 404;
-      throw error;
-    })
     .then((user) => {
       res.status(200).send(user);
     })

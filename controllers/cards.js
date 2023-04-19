@@ -10,11 +10,11 @@ function createCard(req, res) {
       if (err.name === 'ValidationError') {
         res.status(400).send({message: 'Переданы некорректные данные при создании карточки'});
       } else if (err.name === 'CastError') {
-        res.status(400).send({ messsage: 'Передан невалидный id'});
+        res.status(400).send({ message: 'Передан невалидный id'});
       } else if (err.statusCode === 404) {
         res.status(404).send({ message: err.message });
       } else {
-        res.status(500).send({ messsage: 'Произошла ошибка'});
+        res.status(500).send({ message: 'Произошла ошибка'});
       }
     });
 }
@@ -35,17 +35,18 @@ function likeCard(req, res) {
     .populate(['likes'])
     .then((card) => {
       if(card) return res.send(card)
+
       throw new NotFoundError('Объект не найден');
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
         res.status(400).send({message: 'Переданы некорректные данные при лайке карточки'});
       } else if (err.name === 'CastError') {
-        res.status(400).send({ messsage: 'Передан невалидный id'});
+        res.status(400).send({ message: 'Передан невалидный id'});
       } else if (err.statusCode === 404) {
         res.status(404).send({ message: err.message });
       } else {
-        res.status(500).send({ messsage: 'Произошла ошибка'});
+        res.status(500).send({ message: 'Произошла ошибка'});
       }
     });
 }
@@ -72,11 +73,11 @@ function dislikedCard(req, res) {
       if (err.name === 'ValidationError') {
         res.status(400).send({message: 'Переданы некорректные данные при снятии лайка'});
       } else if (err.name === 'CastError') {
-        res.status(400).send({ messsage: 'Передан невалидный id'});
+        res.status(400).send({ message: 'Передан невалидный id'});
       } else if (err.statusCode === 404) {
         res.status(404).send({ message: err.message });
       } else {
-        res.status(500).send({ messsage: 'Произошла ошибка'});
+        res.status(500).send({ message: 'Произошла ошибка'});
       }
     });
 }

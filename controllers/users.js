@@ -23,6 +23,9 @@ function getUser(req, res) {
       error.statusCode = 404;
       throw error;
   })
+  .then((user) => {
+    if(user) return res.status(200).send(user);
+  })
     .catch((err) => {
       if (err.name === 'ValidationError') {
         res.status(400).send({message: 'Запрашиваемый пользователь не найден'});
@@ -38,8 +41,8 @@ function getUser(req, res) {
 
 function getUsers(req, res) {
   User.find({})
-  .then((user) => {
-    if(user) return res.status(200).send(user);
+  .then((users) => {
+    if(users) return res.status(200).send(users);
   })
     .catch((err) => {
       if (err.name === 'ValidationError') {

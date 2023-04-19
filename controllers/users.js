@@ -19,7 +19,9 @@ function createUser(req, res) {
 function getUser(req, res) {
   User.findById(req.params.id)
     .then((user) => {
-      res.status(200).send(user);
+      if(user) return res.status(200).send(user);
+
+      throw new NotFoundError('Пользователь не найден');
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {

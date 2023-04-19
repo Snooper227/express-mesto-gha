@@ -88,10 +88,9 @@ const deleteCard = (req, res) => {
   const { cardId } = req.params;
   Card.findByIdAndRemove(cardId)
     .then((card) => {
-      if (card) {
-        res.status(200).send(card);
-        throw new NotFoundError('Объект не найден');
-      }
+      if (card) return res.status(200).send(card);
+
+      throw new NotFoundError('Объект не найден');
     })
     .catch((err) => {
       if (err.name === 'CastError') {

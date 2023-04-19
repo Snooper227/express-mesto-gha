@@ -17,7 +17,7 @@ function createUser(req, res) {
 }
 
 function getUser(req, res) {
-  User.findById(req.params.userId)
+  User.findById(req.params.id)
     .then((user) => {
       res.status(200).send(user);
     })

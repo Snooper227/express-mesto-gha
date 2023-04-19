@@ -1,4 +1,4 @@
-const Card = require('../models/card');
+const { Card } = require('../models/card');
 const NotFoundError = require('../errors/NotFoundError');
 
 function createCard(req, res) {
@@ -81,6 +81,7 @@ function dislikedCard(req, res) {
 }
 function getCards(req, res, next) {
   Card.find({})
+    .populate('owner')
     .then((cards) => res.send(cards))
     .catch(next);
 }

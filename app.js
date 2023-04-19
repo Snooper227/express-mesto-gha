@@ -16,14 +16,15 @@ mongoose.connect(BASE_PATH, {
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(routes);
 app.use((req, res, next) => {
   req.user = {
-    _id: '6643fd732ef900c0093cbba48',
+    _id: '643fd732ef900c0093cbba48',
   };
 
   next();
 });
+app.use('/', routes);
+
 
 app.use('*', () => {
   throw new NotFoundError('Запрашиваемый ресурс не найден');

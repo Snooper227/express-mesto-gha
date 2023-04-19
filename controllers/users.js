@@ -24,7 +24,7 @@ function getUser(req, res) {
       throw error;
     })
     .then((user) => {
-      res.send({ user })
+      res.status(200).send({ user });
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
@@ -56,7 +56,7 @@ function getUsers(req, res) {
 }
 
 function getCurrentUserInfo(req, res) {
-  User.findById(req.user.payload)
+  User.findById(req.user._id)
   .orFail(() => {
     const error = new Error('Пользователь с таким id не найден');
       error.statusCode = 404;
@@ -81,7 +81,7 @@ function getCurrentUserInfo(req, res) {
 function updateUser(req, res) {
   const { name, about } = req.body;
   User.findByIdAndUpdate(
-    req.user.payload, { name, about },
+    req.user._id, { name, about },
     {
       new: true,
       runValidators: true,
@@ -112,7 +112,7 @@ function updateUser(req, res) {
 function updateAvatar(req, res) {
   const { avatar } = req.body;
   User.findByIdAndUpdate(
-    req.user.payload, { avatar },
+    req.user._id, { avatar },
     {
       new: true,
       runValidators: true

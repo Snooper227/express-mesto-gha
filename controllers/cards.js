@@ -10,7 +10,7 @@ function createCard(req, res) {
       if (err.name === 'ValidationError') {
         res.status(400).send({message: 'Переданы некорректные данные при создании карточки'});
       } else if (err.name === 'CastError') {
-        res.status(400).send({ messsage: 'Передаен невалидный id'});
+        res.status(400).send({ messsage: 'Передан невалидный id'});
       } else if (err.statusCode === 404) {
         res.status(404).send({ message: err.message });
       } else {
@@ -41,7 +41,7 @@ function likeCard(req, res) {
       if (err.name === 'ValidationError') {
         res.status(400).send({message: 'Переданы некорректные данные при лайке карточки'});
       } else if (err.name === 'CastError') {
-        res.status(400).send({ messsage: 'Передаен невалидный id'});
+        res.status(400).send({ messsage: 'Передан невалидный id'});
       } else if (err.statusCode === 404) {
         res.status(404).send({ message: err.message });
       } else {
@@ -72,7 +72,7 @@ function dislikedCard(req, res) {
       if (err.name === 'ValidationError') {
         res.status(400).send({message: 'Переданы некорректные данные при снятии лайка'});
       } else if (err.name === 'CastError') {
-        res.status(400).send({ messsage: 'Передаен невалидный id'});
+        res.status(400).send({ messsage: 'Передан невалидный id'});
       } else if (err.statusCode === 404) {
         res.status(404).send({ message: err.message });
       } else {

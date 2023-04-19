@@ -17,7 +17,7 @@ function createUser(req, res) {
 }
 
 function getUser(req, res) {
-  User.findById(req.params.id)
+  User.findById(req.params.userId)
     .orFail(() => {
       const error = new Error('Пользователь с таким id не найден');
       error.statusCode = 404;
@@ -30,7 +30,7 @@ function getUser(req, res) {
       if (err.name === 'ValidationError') {
         res.status(400).send({message: 'Запрашиваемый пользователь не найден'});
       } else if (err.name === 'CastError') {
-        res.status(400).send({ messsage: 'Передаен невалидный id'});
+        res.status(400).send({messsage: 'Передан невалидный id'});
       } else if (err.statusCode === 404) {
         res.status(404).send({ message: err.message });
       } else {
@@ -46,7 +46,7 @@ function getUsers(req, res) {
       if (err.name === 'ValidationError') {
         res.status(400).send({message: 'Запрашиваемые пользователи не найдены'});
       } else if (err.name === 'CastError') {
-        res.status(400).send({ messsage: 'Передаен невалидный id'});
+        res.status(400).send({ messsage: 'Передан невалидный id'});
       } else if (err.statusCode === 404) {
         res.status(404).send({ message: err.message });
       } else {
@@ -69,7 +69,7 @@ function getCurrentUserInfo(req, res) {
     if (err.name === 'ValidationError') {
       res.status(400).send({message: 'Пользователь не найден'});
     } else if (err.name === 'CastError') {
-      res.status(400).send({ messsage: 'Передаен невалидный id'});
+      res.status(400).send({ messsage: 'Передан невалидный id'});
     } else if (err.statusCode === 404) {
       res.status(404).send({ message: err.message });
     } else {
@@ -100,7 +100,7 @@ function updateUser(req, res) {
     if (err.name === 'ValidationError') {
       res.status(400).send({message: 'Переданы некорректные данные при обновлении профиля'});
     } else if (err.name === 'CastError') {
-      res.status(400).send({ messsage: 'Передаен невалидный id'});
+      res.status(400).send({ messsage: 'Передан невалидный id'});
     } else if (err.statusCode === 404) {
       res.status(404).send({ message: err.message });
     } else {
@@ -130,7 +130,7 @@ function updateAvatar(req, res) {
     if (err.name === 'ValidationError') {
       res.status(400).send({message: 'Переданы некорректные данные при обновлении аватара'});
     } else if (err.name === 'CastError') {
-      res.status(400).send({ messsage: 'Передаен невалидный id'});
+      res.status(400).send({ messsage: 'Передан невалидный id'});
     } else if (err.statusCode === 404) {
       res.status(404).send({ message: err.message });
     } else {

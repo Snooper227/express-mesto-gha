@@ -32,6 +32,7 @@ function likeCard(req, res) {
       new: true,
     },
   )
+    .populate(['likes'])
     .then((card) => {
       if(card) return res.send({ data: card })
       throw new NotFoundError('Объект не найден');
@@ -81,7 +82,7 @@ function dislikedCard(req, res) {
 }
 function getCards(req, res, next) {
   Card.find({})
-    .populate('owner')
+    .populate(['owner'])
     .then((cards) => res.send(cards))
     .catch(next);
 }

@@ -18,11 +18,11 @@ function createUser(req, res) {
 
 function getUser(req, res) {
   User.findById(req.params.id)
-    .then((user) => {
-      if(user) return res.status(200).send(user);
-
-      throw new NotFoundError('Пользователь не найден');
-    })
+  .orFail(() => {
+    const error = new Error('Пользовател с таким id не найден');
+      error.statusCode = 404;
+      throw error;
+  })
     .catch((err) => {
       if (err.name === 'ValidationError') {
         res.status(400).send({message: 'Запрашиваемый пользователь не найден'});
@@ -38,13 +38,8 @@ function getUser(req, res) {
 
 function getUsers(req, res) {
   User.find({})
-  .orFail(() => {
-    const error = new Error('Пользователь с таким id не найден');
-      error.statusCode = 404;
-      throw error;
-  })
   .then((user) => {
-    res.status(200).send(user)
+    if(user) return res.status(200).send(user);
   })
     .catch((err) => {
       if (err.name === 'ValidationError') {

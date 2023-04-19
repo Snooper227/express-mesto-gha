@@ -5,4 +5,4 @@ class NotFoundError extends Error {
   }
 }
 
-module.esports = { NotFoundError };
+module.exports =  NotFoundError;

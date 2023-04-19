@@ -7,8 +7,8 @@ function createUser(req, res, next) {
   User.create({ name, about, avatar })
     .then((user) => res.status(200).send(user))
     .catch((err) => {
-      if (err.name === 'validationError') {
-        next(new ValidationError('Переданы некорректные данные при создании профиля'))
+      if (err.name === 'ValidationError') {
+        next(new ValidationError('Переданы некорректные данные при создании профиля'));
       } else {
         next(err);
       }
@@ -18,28 +18,24 @@ function createUser(req, res, next) {
 function getUser(req, res, next) {
   User.findById(req.params.id)
     .then((user) => {
-      res.status(200).send(user)
+      if (user) res.send(user)
+
+      throw new NotFoundError('Пользователь с таким id не найден');
     })
     .catch((err) => {
       if (err.name === 'validationError') {
-        next(new NotFoundError('Пользователь не найден'))
-      } else {
-        next(err);
+        next (new ValidationError('Передан некорректный id'));
       }
     });
 }
 
 function getUsers(req, res, next) {
   User.find({})
-    .then((users) => res.status(200).send({
-      _id: users._id,
-      name: users.name,
-      about: users.about,
-      avatar: users.avatar
-    }))
+    .then((users) => res.status(200).send({ users }))
     .catch((err) => {
       if (err.name === 'validationError') {
-        next(new NotFoundError('Пользователи не найдены'))
+        next(new NotFoundError('Пользователи не найдены'));
+        return;
       } else {
         next(err);
       }
@@ -56,7 +52,11 @@ function getCurrentUserInfo(req, res, next) {
     }
   })
   .catch((err) => {
-    next(err);
+    if (err.name === 'validationError') {
+      next( new ValidationError('Передан некорректный id'))
+    } else {
+      next(err);
+    }
   })
 }
 
@@ -78,7 +78,11 @@ function updateUser(req, res, next) {
     }
   })
   .catch((err) => {
-    next(err);
+    if (err.name === 'ValidationError') {
+      next( new ValidationError('Переданы некорректные данные при обновлении профиля пользователя'))
+    } else {
+      next(err);
+    }
   })
 }
 
@@ -99,7 +103,11 @@ function updateAvatar(req, res, next) {
     }
   })
   .catch((err) => {
-    next(err);
+    if (err.name === 'ValidationError') {
+      next( new ValidationError('Переданы некорректные данные при обновлении профиля пользователя'))
+    } else {
+      next(err);
+    }
   })
 }
 

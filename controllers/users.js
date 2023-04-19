@@ -4,7 +4,7 @@ function createUser(req, res) {
   const { name, about, avatar } = req.body;
 
   User.create({ name, about, avatar })
-    .then((user) => res.status(201).send({ user }))
+    .then((user) => res.status(201).send(user))
     .catch((err) => {
       if (err.name === 'ValidationError') {
         res.status(400).send({message: 'Переданы некорректные данные при создании профиля'});
@@ -24,7 +24,7 @@ function getUser(req, res) {
       throw error;
     })
     .then((user) => {
-      res.status(200).send({ user });
+      res.status(200).send(user);
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
@@ -41,7 +41,7 @@ function getUser(req, res) {
 
 function getUsers(req, res) {
   User.find({})
-    .then((users) => res.status(200).send({ users }))
+    .then((users) => res.status(200).send(users))
     .catch((err) => {
       if (err.name === 'ValidationError') {
         res.status(400).send({message: 'Запрашиваемые пользователи не найдены'});
@@ -63,7 +63,7 @@ function getCurrentUserInfo(req, res) {
       throw error;
   })
   .then((user) => {
-    res.send({ user })
+    res.send(user)
   })
   .catch((err) => {
     if (err.name === 'ValidationError') {

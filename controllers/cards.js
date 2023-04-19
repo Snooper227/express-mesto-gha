@@ -5,7 +5,7 @@ function createCard(req, res) {
   const { name, link } = req.body;
   const { userId } = req.user;
   Card.create({ name, link, owner: userId })
-    .then((card) => res.status(201).send({ data: card }))
+    .then((card) => res.status(201).send(card))
     .catch((err) => {
       if (err.name === 'ValidationError') {
         res.status(400).send({message: 'Переданы некорректные данные при создании карточки'});
@@ -34,7 +34,7 @@ function likeCard(req, res) {
   )
     .populate(['likes'])
     .then((card) => {
-      if(card) return res.send({ data: card })
+      if(card) return res.send(card)
       throw new NotFoundError('Объект не найден');
     })
     .catch((err) => {
@@ -64,7 +64,7 @@ function dislikedCard(req, res) {
     },
   )
     .then((card) => {
-      if (card) return res.send({ data: card })
+      if (card) return res.send(card)
 
     throw new NotFoundError('Объект не найден');
     })

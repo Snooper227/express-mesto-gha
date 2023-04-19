@@ -1,22 +1,25 @@
 const Card = require('../models/card');
-const ValidationError = require('../errors/ValidationError');
 const NotFoundError = require('../errors/NotFoundError');
 
-function createCard(req, res, next) {
+function createCard(req, res) {
   const { name, link } = req.body;
   const { userId } = req.user;
   Card.create({ name, link, owner: userId })
     .then((card) => res.status(201).send({ data: card }))
     .catch((err) => {
-      if (err.name === 'validationError') {
-        next(new ValidationError('Переданы некорректные данные при создании карточки'))
+      if (err.name === 'ValidationError') {
+        res.status(400).send({message: 'Переданы некорректные данные при создании карточки'});
+      } else if (err.name === 'CastError') {
+        res.status(400).send({ messsage: 'Передаен невалидный id'});
+      } else if (err.statusCode === 404) {
+        res.status(404).send({ message: err.message });
       } else {
-        next(err);
+        res.status(500).send({ messsage: 'Произошла ошибка'});
       }
     });
 }
 
-function likeCard(req, res, next) {
+function likeCard(req, res) {
   const { cardId } = req.params;
   const { userId } = req.user;
 
@@ -34,15 +37,19 @@ function likeCard(req, res, next) {
       throw new NotFoundError('Объект не найден');
     })
     .catch((err) => {
-      if (err.name === 'validationError') {
-        next(new ValidationError('Переданы некорректные данные при создании карточки'))
+      if (err.name === 'ValidationError') {
+        res.status(400).send({message: 'Переданы некорректные данные при лайке карточки'});
+      } else if (err.name === 'CastError') {
+        res.status(400).send({ messsage: 'Передаен невалидный id'});
+      } else if (err.statusCode === 404) {
+        res.status(404).send({ message: err.message });
       } else {
-        next(err);
+        res.status(500).send({ messsage: 'Произошла ошибка'});
       }
     });
 }
 
-function dislikedCard(req, res, next) {
+function dislikedCard(req, res) {
   const { cardId } = req.params;
   const { userId } = req.user;
 
@@ -61,10 +68,14 @@ function dislikedCard(req, res, next) {
     throw new NotFoundError('Объект не найден');
     })
     .catch((err) => {
-      if (err.name === 'validationError') {
-        next(new ValidationError('Переданы некорректные данные при снятии лайка карточки'))
+      if (err.name === 'ValidationError') {
+        res.status(400).send({message: 'Переданы некорректные данные при снятии лайка'});
+      } else if (err.name === 'CastError') {
+        res.status(400).send({ messsage: 'Передаен невалидный id'});
+      } else if (err.statusCode === 404) {
+        res.status(404).send({ message: err.message });
       } else {
-        next(err);
+        res.status(500).send({ messsage: 'Произошла ошибка'});
       }
     });
 }

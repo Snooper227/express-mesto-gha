@@ -14,14 +14,14 @@ const cardSchema = new mongoose.Schema({
     validate: { validator: (v) => validator.isURL(v) },
   },
   owner: {
-    type: mongoose.Schema.Types.ObjectId,
+    types: mongoose.Schema.Types.ObjectId,
     ref: 'user',
     required: true,
   },
   likes: {
     type: [
       {
-        type: mongoose.Schema.Types.ObjectId,
+        types: mongoose.Schema.Types.ObjectId,
         ref: 'user',
       },
     ],

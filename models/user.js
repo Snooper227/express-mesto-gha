@@ -20,5 +20,5 @@ const userSchema = new mongoose.Schema({
     validate: { validator: (v) => validator.isURL(v) },
   },
 }, { versionKey: false });
-const User = mongoose.model('user', userSchema);;
+const User = mongoose.model('user', userSchema);
 module.exports = { User };

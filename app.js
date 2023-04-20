@@ -1,8 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
-const routes = require('./routes/index');
 const bodyParser = require('body-parser');
-const NotFoundError = require('./errors/NotFoundError');
+const routes = require('./routes/index');
 
 const app = express();
 
@@ -24,11 +23,6 @@ app.use((req, res, next) => {
   next();
 });
 app.use('/', routes);
-
-
-app.use('*', () => {
-  throw new NotFoundError('Запрашиваемый ресурс не найден');
-});
 
 app.listen(PORT, () => {
   console.log(`App open on port ${PORT}`);

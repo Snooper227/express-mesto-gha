@@ -5,7 +5,7 @@ const {
   likeCard,
   dislikedCard,
   deleteCard,
-  getCards
+  getCards,
 } = require('../controllers/cards');
 
 routesCards.delete('/:cardId', deleteCard);

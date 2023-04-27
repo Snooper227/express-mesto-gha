@@ -1,29 +1,65 @@
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+
 const { User } = require('../models/user');
-const StatusCode = require('../utils/constans-error');
+const UnauthorizationError = require('../errors/UnauthorizationError');
+const NotFoundError = require('../errors/NotFoundError');
+const ConflictError = require('../errors/ConflictError');
+const ValidationError = require('../errors/ValidationError');
 
-function createUser(req, res) {
-  const { name, about, avatar } = req.body;
+function createUser(req, res, next) {
+  const {
+    email,
+    password,
+    name,
+    about,
+    avatar,
+  } = req.body;
 
-  User.create({ name, about, avatar })
+  bcrypt
+    .hash(password, 10)
+    .then((hash) => User.create({
+      email,
+      password: hash,
+      name,
+      about,
+      avatar,
+    }))
     .then((user) => res.status(201).send(user))
     .catch((err) => {
-      if (err.name === 'ValidationError') {
-        res
-          .status(StatusCode.BAD_REQUEST)
-          .send({
-            message: 'Переданы некорректные данные при создании профиля',
-          });
+      if (err.code === 11000) {
+        next(new ConflictError('Пользователь с таким электронным адресом уже зарегистрирован'));
+      } else if (err.name === 'ValidationError') {
+        next(new ValidationError('Переданы некорректные данные при регистрации пользователя'));
       } else {
-        res.status(StatusCode.DEFAULT).send({ message: 'Произошла ошибка' });
+        next(err);
       }
     });
 }
 
-function getUser(req, res) {
+function loginUser(req, res, next) {
+  const { email, password } = req.body;
+
+  User.findUserByredentials(email, password)
+    .then(({ _id: userId }) => {
+      if (userId) {
+        const token = jwt.sign(
+          { userId },
+          'some-secret-key',
+          { expiresIn: '7d' },
+        );
+        return res.send({ _id: token });
+      }
+      throw new UnauthorizationError('Неправильные почта или пароль');
+    })
+    .catch((err) => next(err));
+}
+
+function getUser(req, res, next) {
   User.findById(req.params.id)
     .orFail(() => {
       const error = new Error('Пользовател с таким id не найден');
-      error.statusCode = StatusCode.NOT_FOUND;
+      error.statusCode = 404;
       throw error;
     })
     .then((user) => {
@@ -31,30 +67,30 @@ function getUser(req, res) {
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(StatusCode.BAD_REQUEST).send({ message: 'Передан невалидный id' });
+        next(new ValidationError('Передан невалидный id'));
       } else if (err.statusCode === 404) {
-        res.status(StatusCode.NOT_FOUND).send({ message: err.message });
+        next(new NotFoundError(err.message));
       } else {
-        res.status(StatusCode.DEFAULT).send({ message: 'Произошла ошибка' });
+        next();
       }
     });
 }
 
-function getUsers(req, res) {
+function getUsers(req, res, next) {
   User.find({})
     .then((users) => {
       res.status(200).send(users);
     })
     .catch(() => {
-      res.status(StatusCode.DEFAULT).send({ message: 'Произошла ошибка' });
+      next();
     });
 }
 
-function getCurrentUserInfo(req, res) {
+function getCurrentUserInfo(req, res, next) {
   User.findById(req.user._id)
     .orFail(() => {
       const error = new Error('Пользователь с таким id не найден');
-      error.statusCode = StatusCode.NOT_FOUND;
+      error.statusCode = 404;
       throw error;
     })
     .then((user) => {
@@ -62,16 +98,16 @@ function getCurrentUserInfo(req, res) {
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(StatusCode.BAD_REQUEST).send({ message: 'Передан невалидный id' });
+        next(new ValidationError('Передан невалидный id'));
       } else if (err.statusCode === 404) {
-        res.status(StatusCode.NOT_FOUND).send({ message: err.message });
+        next(new NotFoundError(err.message));
       } else {
-        res.status(StatusCode.DEFAULT).send({ message: 'Произошла ошибка' });
+        next(err);
       }
     });
 }
 
-function updateUser(req, res) {
+function updateUser(req, res, next) {
   const { name, about } = req.body;
   User.findByIdAndUpdate(
     req.user._id,
@@ -84,7 +120,7 @@ function updateUser(req, res) {
   )
     .orFail(() => {
       const error = new Error('Пользователь с таким id не найден');
-      error.statusCode = StatusCode.NOT_FOUND;
+      error.statusCode = 404;
       throw error;
     })
     .then((user) => {
@@ -92,22 +128,18 @@ function updateUser(req, res) {
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res
-          .status(StatusCode.BAD_REQUEST)
-          .send({
-            message: 'Переданы некорректные данные при обновлении профиля',
-          });
+        next(new ValidationError('Переданы некорректные данные при обновлении профиля'));
       } else if (err.name === 'CastError') {
-        res.status(StatusCode.BAD_REQUEST).send({ message: 'Передан невалидный id' });
+        next(new ValidationError('Передан невалидный id'));
       } else if (err.statusCode === 404) {
-        res.status(StatusCode.NOT_FOUND).send({ message: err.message });
+        next(new NotFoundError(err.message));
       } else {
-        res.status(StatusCode.DEFAULT).send({ message: 'Произошла ошибка' });
+        next(err);
       }
     });
 }
 
-function updateAvatar(req, res) {
+function updateAvatar(req, res, next) {
   const { avatar } = req.body;
   User.findByIdAndUpdate(
     req.user._id,
@@ -119,7 +151,7 @@ function updateAvatar(req, res) {
   )
     .orFail(() => {
       const error = new Error('Пользователь с таким id не найден');
-      error.statusCode = StatusCode.NOT_FOUND;
+      error.statusCode = 404;
       throw error;
     })
     .then((user) => {
@@ -127,17 +159,13 @@ function updateAvatar(req, res) {
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res
-          .status(StatusCode.BAD_REQUEST)
-          .send({
-            message: 'Переданы некорректные данные при обновлении аватара',
-          });
+        next(new ValidationError('Переданы некорректные данные при обновлении аватара'));
       } else if (err.name === 'CastError') {
-        res.status(StatusCode.BAD_REQUEST).send({ message: 'Передан невалидный id' });
+        next(new ValidationError('Передан невалидный id'));
       } else if (err.statusCode === 404) {
-        res.status(StatusCode.NOT_FOUND).send({ message: err.message });
+        next(new NotFoundError(err.message));
       } else {
-        res.status(StatusCode.DEFAULT).send({ message: 'Произошла ошибка' });
+        next(err);
       }
     });
 }
@@ -149,4 +177,5 @@ module.exports = {
   getCurrentUserInfo,
   updateAvatar,
   updateUser,
+  loginUser,
 };

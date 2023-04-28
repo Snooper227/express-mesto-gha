@@ -1,24 +1,32 @@
 const jwt = require('jsonwebtoken');
 const { UnauthorizathionError } = require('../errors/UnauthorizationError');
 
-function auth(req, _, next) {
-  const { authorization } = req.headers;
-  const bearer = 'Bearer ';
-  if (!authorization || !authorization.startsWith(bearer)) {
-    return next(
-      new UnauthorizathionError('Неправильные почта или пароль'),
-    );
-  }
-  const token = authorization.replace(bearer, '');
-  let payload;
+function auth(req, res, next) {
   try {
-    payload = jwt.verify(token, 'some-secret-key');
-  } catch (err) {
-    return new UnauthorizathionError('Неправильные почта или пароль');
-  }
-  req.user = payload;
+    const { authorization } = req.headers;
 
-  return next();
+    if (!authorization || !authorization.startsWith('Bearer ')) {
+      throw new UnauthorizathionError(
+        'Для выполнения действия необходима авторизация',
+      );
+    }
+
+    const token = authorization.replace('Bearer ', '');
+    let payload;
+
+    try {
+      payload = jwt.verify(token, 'secretkey');
+    } catch (err) {
+      throw new UnauthorizathionError(
+        'Для выполнения действия необходима авторизация',
+      );
+    }
+
+    req.user = payload;
+    next();
+  } catch (err) {
+    next(err);
+  }
 }
 
-module.exports = auth;
+module.exports = { auth };

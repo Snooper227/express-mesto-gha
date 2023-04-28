@@ -2,10 +2,12 @@ const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const { errors } = require('celebrate');
+const handleErrors = require('./middelwares/handleError');
 const { auth } = require('./middelwares/auth');
 const routes = require('./routes/index');
 const routeSignin = require('./routes/signin');
 const routeSignup = require('./routes/signup');
+const NotFoundError = require('./errors/NotFoundError');
 
 const app = express();
 
@@ -30,6 +32,11 @@ app.use((err, req, res) => {
   res.status(err.statusCode).send({ message: err.message });
 });
 
+app.use((req, res, next) => {
+  next(new NotFoundError('Такой страницы не существует.'));
+});
+
+app.use(handleErrors);
 app.use(errors());
 
 app.listen(PORT, () => {

@@ -2,10 +2,10 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
 const { User } = require('../models/user');
-const UnauthorizationError = require('../errors/UnauthorizationError');
-const NotFoundError = require('../errors/NotFoundError');
-const ConflictError = require('../errors/ConflictError');
-const ValidationError = require('../errors/ValidationError');
+const { UnauthorizathionError } = require('../errors/UnauthorizationError');
+const { NotFoundError } = require('../errors/NotFoundError');
+const { ConflictError } = require('../errors/ConflictError');
+const { ValidationError } = require('../errors/ValidationError');
 
 function createUser(req, res, next) {
   const {
@@ -60,7 +60,7 @@ function loginUser(req, res, next) {
         );
         return res.send({ _id: token });
       }
-      throw new UnauthorizationError('Неправильные почта или пароль');
+      throw new UnauthorizathionError('Неправильные почта или пароль');
     })
     .catch(next);
 }

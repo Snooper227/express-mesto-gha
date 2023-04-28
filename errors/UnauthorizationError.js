@@ -4,4 +4,4 @@ class UnauthorizathionError extends Error {
     this.statusCode = 401;
   }
 }
-module.exports = UnauthorizathionError;
+module.exports = { UnauthorizathionError };

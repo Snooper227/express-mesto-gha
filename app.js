@@ -5,7 +5,6 @@ const { errors } = require('celebrate');
 const routes = require('./routes/index');
 const routeSignin = require('./routes/signin');
 const routeSignup = require('./routes/signup');
-const auth = require('./middelwares/auth');
 const errorHandle = require('./middelwares/errorHandle');
 
 const app = express();
@@ -22,7 +21,6 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use('/', routeSignin);
 app.use('/', routeSignup);
-app.use(auth);
 app.use('/', routes);
 app.use(errors());
 app.use(errorHandle);

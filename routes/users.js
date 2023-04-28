@@ -10,7 +10,12 @@ const {
 } = require('../controllers/users');
 
 routesUsers.post('/', createUser);
-routesUsers.get('/me', getCurrentUserInfo);
+routesUsers.get('/me', celebrate({
+  body: Joi.object().keys({
+    name: Joi.string().min(2).max(30),
+    about: Joi.string().min(2).max(30),
+  }),
+}), getCurrentUserInfo);
 routesUsers.get('/:id', celebrate({
   params: Joi.object().keys({
     id: Joi.string().length(24).hex().required(),

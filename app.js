@@ -2,10 +2,11 @@ const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const { errors } = require('celebrate');
+const auth = require('./middelwares/auth');
 const routes = require('./routes/index');
 const routeSignin = require('./routes/signin');
 const routeSignup = require('./routes/signup');
-const errorHandle = require('./middelwares/errorHandle');
+const { errorHandle } = require('./middelwares/errorHandle');
 
 const app = express();
 
@@ -19,11 +20,14 @@ mongoose.connect(BASE_PATH, {
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+
+app.use(auth);
+
 app.use('/', routeSignin);
 app.use('/', routeSignup);
 app.use('/', routes);
 app.use(errors());
-app.use(errorHandle);
+app.use(errorHandle());
 
 app.listen(PORT, () => {
   console.log(`App open on port ${PORT}`);

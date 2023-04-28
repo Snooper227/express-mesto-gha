@@ -1,8 +1,12 @@
-function errorHandle(err, _, res, next) {
-  const statusCode = err.statusCode || 500;
-  const message = statusCode === 500 ? 'На сервере произошла ошибка' : err.message;
+function errorHandle(err, req, res) {
+  const { statusCode = 500 } = err;
+  let { message } = err;
+
+  if (statusCode === 500) {
+    message = 'Ошибка на сервере';
+  }
+
   res.status(statusCode).send({ message });
-  next();
 }
 
 module.exports = errorHandle;

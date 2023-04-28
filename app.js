@@ -25,6 +25,11 @@ app.use(auth);
 app.use('/', routeSignin);
 app.use('/', routeSignup);
 app.use('/', routes);
+
+app.use((err, req, res) => {
+  res.status(err.statusCode).send({ message: err.message });
+});
+
 app.use(errors());
 
 app.listen(PORT, () => {

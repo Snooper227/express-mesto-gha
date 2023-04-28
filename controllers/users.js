@@ -48,21 +48,35 @@ function createUser(req, res, next) {
 }
 
 function loginUser(req, res, next) {
-  const { email, password } = req.body;
+  try {
+    const { email, password } = req.body;
 
-  User.findUserByredentials(email, password)
-    .then(({ _id: userId }) => {
-      if (userId) {
-        const token = jwt.sign(
-          { userId },
-          'some-secret-key',
-          { expiresIn: '7d' },
-        );
-        return res.send({ _id: token });
-      }
-      throw new UnauthorizathionError('Неправильные почта или пароль');
-    })
-    .catch(next);
+    const user = User.findOne({ email }).select('+password');
+
+    if (!user) {
+      throw new UnauthorizathionError('Неверные данные для входа');
+    }
+
+    const hasRightPassword = bcrypt.compare(password, user.password);
+
+    if (!hasRightPassword) {
+      throw new UnauthorizathionError('Неверные данные для входа');
+    }
+
+    const token = jwt.sign(
+      {
+        _id: user._id,
+      },
+      'some-secret-key',
+      {
+        expiresIn: '7d',
+      },
+    );
+
+    res.send({ jwt: token });
+  } catch (err) {
+    next(err);
+  }
 }
 
 function getUser(req, res, next) {

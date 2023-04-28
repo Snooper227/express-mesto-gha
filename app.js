@@ -3,11 +3,7 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const { errors } = require('celebrate');
 const handleErrors = require('./middelwares/handleError');
-const { auth } = require('./middelwares/auth');
 const routes = require('./routes/index');
-const routeSignin = require('./routes/signin');
-const routeSignup = require('./routes/signup');
-const NotFoundError = require('./errors/NotFoundError');
 
 const app = express();
 
@@ -22,18 +18,10 @@ mongoose.connect(BASE_PATH, {
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-app.use(auth);
-
-app.use('/', routeSignin);
-app.use('/', routeSignup);
 app.use('/', routes);
 
 app.use((err, req, res) => {
   res.status(err.statusCode).send({ message: err.message });
-});
-
-app.use((req, res, next) => {
-  next(new NotFoundError('Такой страницы не существует.'));
 });
 
 app.use(handleErrors);

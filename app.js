@@ -6,7 +6,6 @@ const auth = require('./middelwares/auth');
 const routes = require('./routes/index');
 const routeSignin = require('./routes/signin');
 const routeSignup = require('./routes/signup');
-const { errorHandle } = require('./middelwares/errorHandle');
 
 const app = express();
 
@@ -27,7 +26,6 @@ app.use('/', routeSignin);
 app.use('/', routeSignup);
 app.use('/', routes);
 app.use(errors());
-app.use(errorHandle());
 
 app.listen(PORT, () => {
   console.log(`App open on port ${PORT}`);

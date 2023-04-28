@@ -9,5 +9,10 @@ router.use('/cards', cardRoutes);
 router.use('*', () => {
   throw new NotFoundError('Запрашиваемый ресурс не найден');
 });
+router.use((req, res, err) => {
+  const { statusCode = 500, message } = err;
+
+  res.status(statusCode).send({ message: statusCode === 500 ? 'На сервере произошла ошибка!' : message });
+});
 
 module.exports = router;

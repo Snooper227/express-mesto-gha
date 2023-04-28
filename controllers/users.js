@@ -25,7 +25,17 @@ function createUser(req, res, next) {
       about,
       avatar,
     }))
-    .then((user) => res.status(201).send(user))
+    .then((user) => {
+      const { _id } = user;
+
+      return res.status(201).send({
+        email,
+        name,
+        about,
+        avatar,
+        _id,
+      });
+    })
     .catch((err) => {
       if (err.code === 11000) {
         next(new ConflictError('Пользователь с таким электронным адресом уже зарегистрирован'));
@@ -52,7 +62,7 @@ function loginUser(req, res, next) {
       }
       throw new UnauthorizationError('Неправильные почта или пароль');
     })
-    .catch((err) => next(err));
+    .catch(next);
 }
 
 function getUser(req, res, next) {

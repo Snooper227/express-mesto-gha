@@ -1,7 +1,6 @@
 const routesUsers = require('express').Router();
 const { celebrate, Joi } = require('celebrate');
 const {
-  createUser,
   getUser,
   getUsers,
   updateUser,
@@ -9,7 +8,6 @@ const {
   getCurrentUserInfo,
 } = require('../controllers/users');
 
-routesUsers.post('/', createUser);
 routesUsers.get('/me', celebrate({
   body: Joi.object().keys({
     name: Joi.string().min(2).max(30),

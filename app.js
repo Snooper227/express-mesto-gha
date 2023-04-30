@@ -2,7 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const { errors } = require('celebrate');
-const handleErrors = require('./middelwares/handleError');
+const { handleErrors } = require('./middelwares/handleError');
 const routes = require('./routes/index');
 
 const app = express();

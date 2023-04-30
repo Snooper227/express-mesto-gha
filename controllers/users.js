@@ -59,9 +59,9 @@ function loginUser(req, res, next) {
 }
 
 function getUser(req, res, next) {
-  const { id } = req.params;
+  const { _id } = req.params;
 
-  User.findById(id)
+  User.findById({ _id })
     .orFail(() => {
       const error = new Error('Пользовател с таким id не найден');
       error.statusCode = 404;

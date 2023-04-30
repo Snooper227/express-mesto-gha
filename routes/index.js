@@ -4,7 +4,7 @@ const { celebrate, Joi } = require('celebrate');
 const { loginUser } = require('../controllers/users');
 const { createUser } = require('../controllers/users');
 const { NotFoundError } = require('../errors/NotFoundError');
-const { auth } = require('../middelwares/auth');
+const auth = require('../middelwares/auth');
 
 const userRoutes = require('./users');
 const cardRoutes = require('./cards');

@@ -6,9 +6,8 @@ const { ValidationError } = require('../errors/ValidationError');
 function createCard(req, res, next) {
   const { name, link } = req.body;
   const { userId } = req.user;
-
   Card.create({ name, link, owner: userId })
-    .then((card) => res.status(201).send({ data: card }))
+    .then((card) => res.status(201).send({ card }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
         next(new ValidationError('Переданы некорректные данные при создании карточки'));
@@ -32,7 +31,7 @@ function likeCard(req, res, next) {
     },
   )
     .then((card) => {
-      if (card) return res.status(200).send({ data: card });
+      if (card) return res.status(200).send({ card });
 
       throw new NotFoundError('Объект не найден');
     })
@@ -61,7 +60,7 @@ function dislikedCard(req, res, next) {
     },
   )
     .then((card) => {
-      if (card) return res.status(200).send({ data: card });
+      if (card) return res.status(200).send({ card });
 
       throw new NotFoundError('Объект не найден');
     })
@@ -77,10 +76,10 @@ function dislikedCard(req, res, next) {
       }
     });
 }
-function getCards(req, res, next) {
+function getCards(_, res, next) {
   Card.find({})
     .populate(['owner', 'likes'])
-    .then((cards) => res.send({ data: cards }))
+    .then((cards) => res.send({ cards }))
     .catch(() => {
       next();
     });
@@ -101,7 +100,7 @@ const deleteCard = (req, res, next) => {
 
       card
         .remove()
-        .then(() => res.send({ data: card }))
+        .then(() => res.send({ card }))
         .catch(next);
     })
     .catch((err) => {

@@ -1,5 +1,7 @@
 const mongoose = require('mongoose');
-const validator = require('validator');
+/* const validator = require('validator'); */
+
+const URL_REGEX = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)/;
 
 const cardSchema = new mongoose.Schema({
   name: {
@@ -11,7 +13,9 @@ const cardSchema = new mongoose.Schema({
   link: {
     type: String,
     required: true,
-    validate: { validator: (v) => validator.isURL(v) },
+    validate: {
+      validator: (url) => URL_REGEX.test(url),
+    },
   },
   owner: {
     type: mongoose.Schema.Types.ObjectId,
@@ -25,7 +29,7 @@ const cardSchema = new mongoose.Schema({
         ref: 'user',
       },
     ],
-    default: {},
+    default: [],
   },
   createdAt: {
     type: Date,

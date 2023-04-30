@@ -1,10 +1,9 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
-const { NODE_ENV, SECRET_KEY } = process.env;
+const { NODE_ENV, JWT_SECRET } = process.env;
 
 const { User } = require('../models/user');
-/* const { UnauthorizathionError } = require('../errors/UnauthorizationError'); */
 const { NotFoundError } = require('../errors/NotFoundError');
 const { ConflictError } = require('../errors/ConflictError');
 const { ValidationError } = require('../errors/ValidationError');
@@ -28,9 +27,15 @@ function createUser(req, res, next) {
       avatar,
     }))
     .then((user) => {
-      const data = user.toObject();
-      delete data.password;
-      res.status(201).send(data);
+      const { _id } = user;
+
+      return res.status(201).send({
+        email,
+        name,
+        about,
+        avatar,
+        _id,
+      });
     })
     .catch((err) => {
       if (err.code === 11000) {
@@ -47,23 +52,16 @@ function loginUser(req, res, next) {
   const { email, password } = req.body;
   return User.findUserByCredentials(email, password)
     .then((user) => {
-      const token = jwt.sign(
-        { _id: user._id },
-        NODE_ENV === 'production' ? SECRET_KEY : 'some-secret-key',
-        { expiresIn: '7d' },
-      );
-      res.cookie('jwt', token, {
-        maxAge: 3600000 * 24 * 7,
-        httpOnly: true,
-        sameSite: true,
-      });
-      res.send({ message: 'Успешный вход' });
+      const token = jwt.sign({ _id: user._id }, NODE_ENV === 'production' ? JWT_SECRET : 'some-secret-key', { expiresIn: '7d' });
+      res.status(201).cookie('authorization', token, { maxAge: 3600000 * 24 * 7, httpOnly: true }).send({ message: 'Athorization successful' });
     })
     .catch(next);
 }
 
 function getUser(req, res, next) {
-  User.findById(req.params.userId)
+  const { id } = req.params;
+
+  User.findById(id)
     .orFail(() => {
       const error = new Error('Пользовател с таким id не найден');
       error.statusCode = 404;
@@ -94,7 +92,8 @@ function getUsers(req, res, next) {
 }
 
 function getCurrentUserInfo(req, res, next) {
-  User.findById(req.user._id)
+  const { userId } = req.user;
+  User.findById(userId)
     .orFail(() => {
       const error = new Error('Пользователь с таким id не найден');
       error.statusCode = 404;
@@ -116,8 +115,10 @@ function getCurrentUserInfo(req, res, next) {
 
 function updateUser(req, res, next) {
   const { name, about } = req.body;
+  const { userId } = req.user;
+
   User.findByIdAndUpdate(
-    req.user._id,
+    userId,
     { name, about },
     {
       new: true,
@@ -148,8 +149,10 @@ function updateUser(req, res, next) {
 
 function updateAvatar(req, res, next) {
   const { avatar } = req.body;
+  const { userId } = req.user;
+
   User.findByIdAndUpdate(
-    req.user._id,
+    userId,
     { avatar },
     {
       new: true,

@@ -5,9 +5,10 @@ const { ValidationError } = require('../errors/ValidationError');
 
 function createCard(req, res, next) {
   const { name, link } = req.body;
-  const owner = req.user._id;
-  Card.create({ name, link, owner })
-    .then((card) => res.status(201).send(card))
+  const { userId } = req.user;
+
+  Card.create({ name, link, owner: userId })
+    .then((card) => res.status(201).send({ data: card }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
         next(new ValidationError('Переданы некорректные данные при создании карточки'));
@@ -18,17 +19,20 @@ function createCard(req, res, next) {
 }
 
 function likeCard(req, res, next) {
+  const { cardId } = req.params;
+  const { userId } = req.user;
+
   Card.findByIdAndUpdate(
-    req.params.cardId,
+    cardId,
     {
-      $addToSet: { likes: req.user._id },
+      $addToSet: { likes: userId },
     },
     {
       new: true,
     },
   )
     .then((card) => {
-      if (card) return res.status(200).send(card);
+      if (card) return res.status(200).send({ data: card });
 
       throw new NotFoundError('Объект не найден');
     })
@@ -57,7 +61,7 @@ function dislikedCard(req, res, next) {
     },
   )
     .then((card) => {
-      if (card) return res.status(200).send(card);
+      if (card) return res.status(200).send({ data: card });
 
       throw new NotFoundError('Объект не найден');
     })
@@ -75,7 +79,8 @@ function dislikedCard(req, res, next) {
 }
 function getCards(req, res, next) {
   Card.find({})
-    .then((cards) => res.send(cards))
+    .populate(['owner', 'likes'])
+    .then((cards) => res.send({ data: cards }))
     .catch(() => {
       next();
     });
@@ -85,7 +90,9 @@ const deleteCard = (req, res, next) => {
   const { id: cardId } = req.params;
   const { userId } = req.user;
 
-  Card.findByIdAndRemove(cardId)
+  Card.findByIdAndRemove({
+    _id: cardId,
+  })
     .then((card) => {
       if (!card) throw new NotFoundError('Данные по указанному id не найдены');
 

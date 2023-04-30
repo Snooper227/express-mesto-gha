@@ -76,7 +76,9 @@ function dislikedCard(req, res, next) {
 function getCards(req, res, next) {
   Card.find({})
     .then((cards) => res.send(cards))
-    .catch(next);
+    .catch(() => {
+      next();
+    });
 }
 
 const deleteCard = (req, res, next) => {

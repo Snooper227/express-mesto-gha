@@ -1,8 +1,10 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
+const { NODE_ENV, SECRET_KEY } = process.env;
+
 const { User } = require('../models/user');
-const { UnauthorizathionError } = require('../errors/UnauthorizationError');
+/* const { UnauthorizathionError } = require('../errors/UnauthorizationError'); */
 const { NotFoundError } = require('../errors/NotFoundError');
 const { ConflictError } = require('../errors/ConflictError');
 const { ValidationError } = require('../errors/ValidationError');
@@ -26,13 +28,9 @@ function createUser(req, res, next) {
       avatar,
     }))
     .then((user) => {
-      res.status(201).send({
-        name: user.name,
-        about: user.about,
-        avatar: user.avatar,
-        email: user.email,
-        _id: user._id,
-      });
+      const data = user.toObject();
+      delete data.password;
+      res.status(201).send(data);
     })
     .catch((err) => {
       if (err.code === 11000) {
@@ -46,35 +44,22 @@ function createUser(req, res, next) {
 }
 
 function loginUser(req, res, next) {
-  try {
-    const { email, password } = req.body;
-
-    const user = User.findOne({ email }).select('+password');
-
-    if (!user) {
-      throw new UnauthorizathionError('Неверные данные для входа');
-    }
-
-    const hasRightPassword = bcrypt.compare(password, user.password);
-
-    if (!hasRightPassword) {
-      throw new UnauthorizathionError('Неверные данные для входа');
-    }
-
-    const token = jwt.sign(
-      {
-        _id: user._id,
-      },
-      'some-secret-key',
-      {
-        expiresIn: '7d',
-      },
-    );
-
-    res.send({ jwt: token });
-  } catch (err) {
-    next(err);
-  }
+  const { email, password } = req.body;
+  return User.findUserByCredentials(email, password)
+    .then((user) => {
+      const token = jwt.sign(
+        { _id: user._id },
+        NODE_ENV === 'production' ? SECRET_KEY : 'some-secret-key',
+        { expiresIn: '7d' },
+      );
+      res.cookie('jwt', token, {
+        maxAge: 3600000 * 24 * 7,
+        httpOnly: true,
+        sameSite: true,
+      });
+      res.send({ message: 'Успешный вход' });
+    })
+    .catch(next);
 }
 
 function getUser(req, res, next) {

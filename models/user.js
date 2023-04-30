@@ -17,20 +17,20 @@ const userSchema = new mongoose.Schema({
   },
   name: {
     type: String,
-    minLength: [2, 'Минимальное количество букв в имени - 2'],
-    maxLength: [30, 'Минимальное количество букв в имени - 30'],
+    minLength: 2,
+    maxLength: 30,
     default: 'Жак-Ив Кусто',
   },
   about: {
     type: String,
-    minLength: [2, 'Минимальное количество букв в имени - 2'],
-    maxLength: [30, 'Минимальное количество букв в имени - 30'],
+    minLength: 2,
+    maxLength: 30,
     default: 'Исследователь',
   },
   avatar: {
     type: String,
+    validate: { validator: (v) => validator.isURL(v) },
     default: 'https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png',
-    validate: /https?:\/\/(www)?[0-9a-z\-._~:/?#[\]@!$&'()*+,;=]+#?$/i,
   },
 }, { versionKey: false });
 const User = mongoose.model('user', userSchema);

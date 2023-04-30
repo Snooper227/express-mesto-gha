@@ -4,8 +4,8 @@ const validator = require('validator');
 const cardSchema = new mongoose.Schema({
   name: {
     type: String,
-    minlength: [2, 'Нужно хотя бы 2 символа.'],
-    maxlength: [30, 'Максимальная длина — 30 символов.'],
+    minlength: 2,
+    maxlength: 30,
     required: true,
   },
   link: {
@@ -25,7 +25,7 @@ const cardSchema = new mongoose.Schema({
         ref: 'user',
       },
     ],
-    default: [],
+    default: {},
   },
   createdAt: {
     type: Date,

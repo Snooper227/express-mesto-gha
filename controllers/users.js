@@ -26,14 +26,12 @@ function createUser(req, res, next) {
       avatar,
     }))
     .then((user) => {
-      const { _id } = user;
-
-      return res.status(201).send({
-        email,
-        name,
-        about,
-        avatar,
-        _id,
+      res.status(201).send({
+        name: user.name,
+        about: user.about,
+        avatar: user.avatar,
+        email: user.email,
+        _id: user._id,
       });
     })
     .catch((err) => {
@@ -80,7 +78,7 @@ function loginUser(req, res, next) {
 }
 
 function getUser(req, res, next) {
-  User.findById(req.params.id)
+  User.findById(req.params.userId)
     .orFail(() => {
       const error = new Error('Пользовател с таким id не найден');
       error.statusCode = 404;

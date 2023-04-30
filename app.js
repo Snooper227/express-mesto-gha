@@ -24,8 +24,8 @@ app.use((err, req, res) => {
   res.status(err.statusCode).send({ message: err.message });
 });
 
-app.use(handleErrors);
 app.use(errors());
+app.use((err, req, res, next) => { handleErrors(err, res, next); });
 
 app.listen(PORT, () => {
   console.log(`App open on port ${PORT}`);

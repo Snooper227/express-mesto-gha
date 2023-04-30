@@ -14,7 +14,7 @@ routesUsers.get('/me', celebrate({
     about: Joi.string().min(2).max(30),
   }),
 }), getCurrentUserInfo);
-routesUsers.get('/:id', celebrate({
+routesUsers.get('/:userId', celebrate({
   params: Joi.object().keys({
     id: Joi.string().length(24).hex().required(),
   }),

@@ -1,6 +1,6 @@
 const express = require('express');
 const mongoose = require('mongoose');
-const bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser');
 const { errors } = require('celebrate');
 const { handleErrors } = require('./middelwares/handleError');
 const routes = require('./routes/index');
@@ -15,8 +15,8 @@ mongoose.connect(BASE_PATH, {
   useUnifiedTopology: true,
 });
 
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.json());
+app.use(cookieParser());
 
 app.use('/', routes);
 

@@ -7,7 +7,6 @@ const { User } = require('../models/user');
 const { NotFoundError } = require('../errors/NotFoundError');
 const { ConflictError } = require('../errors/ConflictError');
 const { ValidationError } = require('../errors/ValidationError');
-const { UnauthorizathionError } = require('../errors/UnauthorizathionError');
 
 function createUser(req, res, next) {
   const {
@@ -57,8 +56,8 @@ function loginUser(req, res, next) {
       const token = jwt.sign({ _id: user._id }, NODE_ENV === 'production' ? JWT_SECRET : 'some-secret-key', { expiresIn: '7d' });
       res.status(200).cookie('authorization', token, { maxAge: 3600000 * 24 * 7, httpOnly: true }).send({ message: 'Успешная авторизация!' });
     })
-    .catch(() => {
-      next(new UnauthorizathionError('Неправильные почта или пароль.'));
+    .catch((err) => {
+      next(err);
     });
 }
 
@@ -74,7 +73,7 @@ function getUser(req, res, next) {
       if (err.name === 'CastError') {
         return next(new ValidationError('Передан невалидный id'));
       }
-      return next();
+      return next(err);
     });
 }
 
@@ -83,8 +82,8 @@ function getUsers(req, res, next) {
     .then((users) => {
       res.status(200).send(users);
     })
-    .catch(() => {
-      next();
+    .catch((err) => {
+      next(err);
     });
 }
 
@@ -101,7 +100,7 @@ function getCurrentUserInfo(req, res, next) {
       if (err.name === 'CastError') {
         return next(new ValidationError('Передан невалидный id'));
       }
-      return next();
+      return next(err);
     });
 }
 

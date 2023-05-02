@@ -20,10 +20,6 @@ app.use(cookieParser());
 
 app.use('/', routes);
 
-app.use((err, req, res) => {
-  res.status(err.statusCode).send({ message: err.message });
-});
-
 app.use(errors());
 app.use((err, req, res, next) => { handleErrors(err, res, next); });
 

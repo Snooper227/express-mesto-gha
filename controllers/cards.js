@@ -34,8 +34,6 @@ function likeCard(req, res, next) {
     .catch((err) => {
       if (err.name === 'CastError') {
         next(new ValidationError('Передан невалидный id'));
-      } else if (err.statusCode === 404) {
-        next(new NotFoundError(err.message));
       } else {
         next(err);
       }
@@ -62,8 +60,6 @@ function dislikedCard(req, res, next) {
         next(new ValidationError('Переданы некорректные данные при снятии лайка'));
       } else if (err.name === 'CastError') {
         next(new ValidationError('Передан невалидный id'));
-      } else if (err.statusCode === 404) {
-        next(new NotFoundError(err.message));
       } else {
         next(err);
       }
@@ -73,8 +69,8 @@ function getCards(_, res, next) {
   Card.find({})
     .populate(['owner', 'likes'])
     .then((cards) => res.send({ cards }))
-    .catch(() => {
-      next();
+    .catch((err) => {
+      next(err);
     });
 }
 

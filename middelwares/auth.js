@@ -8,7 +8,7 @@ module.exports = (req, res, next) => {
   const { authorization } = req.cookies;
 
   if (!authorization) {
-    throw new UnauthorizathionError('Authorization is needed');
+    throw new UnauthorizathionError('Требуется авторизация');
   }
 
   const token = authorization.replace('Bearer ', '');
@@ -20,7 +20,7 @@ module.exports = (req, res, next) => {
       NODE_ENV === 'production' ? JWT_SECRET : 'some-secret-key',
     );
   } catch (err) {
-    throw new UnauthorizathionError('Authorization is needed');
+    throw new UnauthorizathionError('Требуется авторизация');
   }
 
   req.user = payload;

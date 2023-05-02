@@ -80,13 +80,15 @@ function getCards(_, res, next) {
 
 function deleteCard(req, res, next) {
   Card.findById(req.params.cardId)
-    .orFail(() => new NotFoundError('Карточка не найдена.'))
     .then((card) => {
-      if (JSON.stringify(card.owner) !== JSON.stringify(req.user.payload)) {
-        return next(new ForbiddenError('Нельзя удалять чужие карточки.'));
-      }
-      return card.remove()
-        .then(() => res.status(200).send({ message: 'Карточка удалена.' }));
+      if (card == null) {
+        throw new NotFoundError('Карточка не найдена');
+      } else if (String(card.owner) !== req.user._id) {
+        throw new ForbiddenError('Доступ ограничен');
+      } return Card.findByIdAndRemove(req.params.cardId)
+        .then(() => {
+          res.send({ message: 'Карточка удалена!' });
+        });
     })
     .catch(next);
 }

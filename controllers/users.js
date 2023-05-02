@@ -7,6 +7,7 @@ const { User } = require('../models/user');
 const { NotFoundError } = require('../errors/NotFoundError');
 const { ConflictError } = require('../errors/ConflictError');
 const { ValidationError } = require('../errors/ValidationError');
+const { UnauthorizathionError } = require('../errors/UnauthorizathionError');
 
 function createUser(req, res, next) {
   const {
@@ -49,13 +50,22 @@ function createUser(req, res, next) {
 }
 
 function loginUser(req, res, next) {
-  const { email, password } = req.body;
-  return User.findUserByCredentials(email, password)
+  const { email } = req.body;
+
+  User.findOne({ email })
+    .select('+password')
     .then((user) => {
       const token = jwt.sign({ _id: user._id }, NODE_ENV === 'production' ? JWT_SECRET : 'some-secret-key', { expiresIn: '7d' });
-      res.status(200).cookie('authorization', token, { maxAge: 3600000 * 24 * 7, httpOnly: true }).send({ message: 'Успешная Авторизация!' });
+      res
+        .cookie('jwt', token, {
+          maxage: 3600000 * 24 * 7,
+          httpOnly: true,
+        })
+        .send({ message: 'Успешная авторизация.' });
     })
-    .catch(next);
+    .catch(() => {
+      next(new UnauthorizathionError('Неправильные почта или пароль.'));
+    });
 }
 
 function getUser(req, res, next) {

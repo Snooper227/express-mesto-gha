@@ -53,31 +53,24 @@ function loginUser(req, res, next) {
   return User.findUserByCredentials(email, password)
     .then((user) => {
       const token = jwt.sign({ _id: user._id }, NODE_ENV === 'production' ? JWT_SECRET : 'some-secret-key', { expiresIn: '7d' });
-      res.status(201).cookie('authorization', token, { maxAge: 3600000 * 24 * 7, httpOnly: true }).send({ message: 'Athorization successful' });
+      res.status(200).cookie('authorization', token, { maxAge: 3600000 * 24 * 7, httpOnly: true }).send({ message: 'Athorization successful' });
     })
     .catch(next);
 }
 
 function getUser(req, res, next) {
-  const { _id } = req.params;
-
-  User.findById({ _id })
-    .orFail(() => {
-      const error = new Error('Пользовател с таким id не найден');
-      error.statusCode = 404;
-      throw error;
-    })
+  User.findById(req.params.userId)
     .then((user) => {
-      res.status(200).send(user);
+      if (user) {
+        return res.status(200).send(user);
+      }
+      return next(new NotFoundError('Пользователь не найден'));
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        next(new ValidationError('Передан невалидный id'));
-      } else if (err.statusCode === 404) {
-        next(new NotFoundError(err.message));
-      } else {
-        next();
+        return next(new ValidationError('Передан невалидный id'));
       }
+      return next();
     });
 }
 
@@ -92,33 +85,27 @@ function getUsers(req, res, next) {
 }
 
 function getCurrentUserInfo(req, res, next) {
-  const { userId } = req.user;
-  User.findById(userId)
-    .orFail(() => {
-      const error = new Error('Пользователь с таким id не найден');
-      error.statusCode = 404;
-      throw error;
-    })
+  const id = req.user._id;
+  User.findById(id)
     .then((user) => {
-      res.status(200).send(user);
+      if (user) {
+        return res.status(200).send(user);
+      }
+      return next(new NotFoundError('Пользователь не найден'));
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        next(new ValidationError('Передан невалидный id'));
-      } else if (err.statusCode === 404) {
-        next(new NotFoundError(err.message));
-      } else {
-        next(err);
+        return next(new ValidationError('Передан невалидный id'));
       }
+      return next();
     });
 }
 
 function updateUser(req, res, next) {
   const { name, about } = req.body;
-  const { userId } = req.user;
 
   User.findByIdAndUpdate(
-    userId,
+    req.user._id,
     { name, about },
     {
       new: true,
@@ -149,10 +136,9 @@ function updateUser(req, res, next) {
 
 function updateAvatar(req, res, next) {
   const { avatar } = req.body;
-  const { userId } = req.user;
 
   User.findByIdAndUpdate(
-    userId,
+    req.user._id,
     { avatar },
     {
       new: true,

@@ -4,9 +4,8 @@ const { ForbiddenError } = require('../errors/ForbiddenError');
 const { ValidationError } = require('../errors/ValidationError');
 
 function createCard(req, res, next) {
-  const { name, link } = req.body;
-  const { userId } = req.user;
-  Card.create({ name, link, owner: userId })
+  const { name, link, owner = req.user._id } = req.body;
+  Card.create({ name, link, owner })
     .then((card) => res.status(201).send({ card }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
@@ -18,13 +17,10 @@ function createCard(req, res, next) {
 }
 
 function likeCard(req, res, next) {
-  const { cardId } = req.params;
-  const { userId } = req.user;
-
   Card.findByIdAndUpdate(
-    cardId,
+    req.params.cardId,
     {
-      $addToSet: { likes: userId },
+      $addToSet: { likes: req.user._id },
     },
     {
       new: true,
@@ -47,13 +43,10 @@ function likeCard(req, res, next) {
 }
 
 function dislikedCard(req, res, next) {
-  const { cardId } = req.params;
-  const { userId } = req.user;
-
   Card.findByIdAndUpdate(
-    cardId,
+    req.params.cardId,
     {
-      $pull: { likes: userId },
+      $pull: { likes: req.user._id },
     },
     {
       new: true,
@@ -86,12 +79,11 @@ function getCards(_, res, next) {
 }
 
 const deleteCard = (req, res, next) => {
-  const { id: cardId } = req.params;
   const { userId } = req.user;
 
-  Card.findByIdAndRemove({
-    _id: cardId,
-  })
+  Card.findByIdAndRemove(
+    req.params.cardId,
+  )
     .then((card) => {
       if (!card) throw new NotFoundError('Данные по указанному id не найдены');
 

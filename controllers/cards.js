@@ -78,33 +78,18 @@ function getCards(_, res, next) {
     });
 }
 
-const deleteCard = (req, res, next) => {
-  const { userId } = req.user;
-
-  Card.findByIdAndRemove(
-    req.params.cardId,
-  )
+function deleteCard(req, res, next) {
+  Card.findById(req.params.cardId)
+    .orFail(() => new NotFoundError('Карточка не найдена.'))
     .then((card) => {
-      if (!card) throw new NotFoundError('Данные по указанному id не найдены');
-
-      const { owner: cardOwnerId } = card;
-      if (cardOwnerId.valueOf() !== userId) throw new ForbiddenError('Нет прав доступа');
-
-      card
-        .remove()
-        .then(() => res.send({ card }))
-        .catch(next);
-    })
-    .catch((err) => {
-      if (err.name === 'CastError') {
-        next(new ValidationError('Передан невалидный id'));
-      } else if (err.statusCode === 404) {
-        next(new NotFoundError(err.message));
-      } else {
-        next(err);
+      if (JSON.stringify(card.owner) !== JSON.stringify(req.user.payload)) {
+        return next(new ForbiddenError('Нельзя удалять чужие карточки.'));
       }
-    });
-};
+      return card.remove()
+        .then(() => res.status(200).send({ message: 'Карточка удалена.' }));
+    })
+    .catch(next);
+}
 
 module.exports = {
   createCard,

@@ -9,9 +9,9 @@ const {
   getCards,
 } = require('../controllers/cards');
 
-routesCards.delete('/:id', celebrate({
+routesCards.delete('/:cardId', celebrate({
   params: Joi.object().keys({
-    id: Joi.string().length(24).hex().required(),
+    cardId: Joi.string().length(24).hex().required(),
   }),
 }), deleteCard);
 
